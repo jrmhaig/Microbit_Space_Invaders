@@ -5,6 +5,7 @@
 from pygame import *
 import sys
 from random import shuffle, randrange, choice
+import serial
 
 #           R    G    B
 WHITE 	= (255, 255, 255)
@@ -13,6 +14,12 @@ YELLOW 	= (241, 255, 0)
 BLUE 	= (80, 255, 239)
 PURPLE 	= (203, 0, 255)
 RED 	= (237, 28, 36)
+
+MB_LEFT = 0
+MB_RIGHT = 1
+MB_FIRE = 2
+
+MB_DEVICE = '/dev/ttyACM0'
 
 SCREEN 		= display.set_mode((800,600))
 FONT = "fonts/space_invaders.ttf"
@@ -29,9 +36,9 @@ class Ship(sprite.Sprite):
 		self.speed = 5
 
 	def update(self, keys, *args):
-		if keys[K_LEFT] and self.rect.x > 10:
+		if keys[MB_LEFT] and self.rect.x > 10:
 			self.rect.x -= self.speed
-		if keys[K_RIGHT] and self.rect.x < 740:
+		if keys[MB_RIGHT] and self.rect.x < 740:
 			self.rect.x += self.speed
 		game.screen.blit(self.image, self.rect)
 
@@ -288,6 +295,7 @@ class SpaceInvaders(object):
 		self.mainScreen = True
 		self.gameOver = False
 		self.enemyposition = 65
+		self.serial = serial.Serial(MB_DEVICE, baudrate=115200, timeout = 0.0001)
 
 	def reset(self, score, lives):
 		self.player = Ship()
@@ -300,7 +308,7 @@ class SpaceInvaders(object):
 		self.reset_lives()
 		self.make_enemies()
 		self.allBlockers = sprite.Group(self.make_blockers(0), self.make_blockers(1), self.make_blockers(2), self.make_blockers(3))
-		self.keys = key.get_pressed()
+		self.get_inputs()
 		self.clock = time.Clock()
 		self.timer = time.get_ticks()
 		self.noteTimer = time.get_ticks()
@@ -357,7 +365,7 @@ class SpaceInvaders(object):
 
 	def create_text(self):
 		self.titleText = Text(FONT, 50, "Space Invaders", WHITE, 164, 155)
-		self.titleText2 = Text(FONT, 25, "Press any key to continue", WHITE, 201, 225)
+		self.titleText2 = Text(FONT, 25, "Press A or B to continue", WHITE, 201, 225)
 		self.gameOverText = Text(FONT, 50, "Game Over", WHITE, 250, 270)
 		self.nextRoundText = Text(FONT, 50, "Next Round", WHITE, 240, 270)
 		self.enemy1Text = Text(FONT, 25, "   =   10 pts", GREEN, 368, 270)
@@ -366,27 +374,38 @@ class SpaceInvaders(object):
 		self.enemy4Text = Text(FONT, 25, "   =  ?????", RED, 368, 420)
 		self.scoreText = Text(FONT, 20, "Score", WHITE, 5, 5)
 		self.livesText = Text(FONT, 20, "Lives ", WHITE, 640, 5)
+
+	def get_inputs(self):
+		ks = [0, 0, 0]
+		com = self.serial.readline()
+		self.serial.flushInput()
+		if b'r' in com:
+			ks[MB_RIGHT] = 1
+		if b'l' in com:
+			ks[MB_LEFT] = 1
+		if b'a' in com or b'b' in com:
+			ks[MB_FIRE] = 1
+		self.keys = tuple(ks)
 		
 	def check_input(self):
-		self.keys = key.get_pressed()
+		self.get_inputs()
 		for e in event.get():
 			if e.type == QUIT:
 				sys.exit()
-			if e.type == KEYDOWN:
-				if e.key == K_SPACE:
-					if len(self.bullets) == 0 and self.shipAlive:
-						if self.score < 1000:
-							bullet = Bullet(self.player.rect.x+23, self.player.rect.y+5, -1, 15, "laser", "center")
-							self.bullets.add(bullet)
-							self.allSprites.add(self.bullets)
-							self.sounds["shoot"].play()
-						else:
-							leftbullet = Bullet(self.player.rect.x+8, self.player.rect.y+5, -1, 15, "laser", "left")
-							rightbullet = Bullet(self.player.rect.x+38, self.player.rect.y+5, -1, 15, "laser", "right")
-							self.bullets.add(leftbullet)
-							self.bullets.add(rightbullet)
-							self.allSprites.add(self.bullets)
-							self.sounds["shoot2"].play()
+		if self.keys[MB_FIRE]:
+			if len(self.bullets) == 0 and self.shipAlive:
+				if self.score < 1000:
+					bullet = Bullet(self.player.rect.x+23, self.player.rect.y+5, -1, 15, "laser", "center")
+					self.bullets.add(bullet)
+					self.allSprites.add(self.bullets)
+					self.sounds["shoot"].play()
+				else:
+					leftbullet = Bullet(self.player.rect.x+8, self.player.rect.y+5, -1, 15, "laser", "left")
+					rightbullet = Bullet(self.player.rect.x+38, self.player.rect.y+5, -1, 15, "laser", "right")
+					self.bullets.add(leftbullet)
+					self.bullets.add(rightbullet)
+					self.allSprites.add(self.bullets)
+					self.sounds["shoot2"].play()
 
 	def make_enemies(self):
 		enemies = sprite.Group()
@@ -450,12 +469,14 @@ class SpaceInvaders(object):
 		self.screen.blit(self.enemy3, (318, 370))
 		self.screen.blit(self.enemy4, (299, 420))
 
+		self.get_inputs()
+		if self.keys[MB_FIRE]:
+			self.startGame = True
+			self.mainScreen = False
+
 		for e in event.get():
 			if e.type == QUIT:
 				sys.exit()
-			if e.type == KEYUP:
-				self.startGame = True
-				self.mainScreen = False
 	
 	def update_enemy_speed(self):
 		if len(self.enemies) <= 10:

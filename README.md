@@ -21,27 +21,29 @@ the alien invasion is successful and the game ends. A special "mystery ship" wil
 screen and award bonus points if destroyed. The ship is partially protected by several stationary defense bunkers that are
 gradually destroyed by projectiles from the aliens and player.
 
+The original version was created by Lee Robinson: https://github.com/leerob/Space_Invaders
+
 <img src="http://www.leejamesrobinson.com/uploads/2/4/9/9/24992148/6520712.png" width="360" height="300" />
 <img src="http://www.leejamesrobinson.com/uploads/2/4/9/9/24992148/6435166.png?1414553641" width="360" height="300"/>
 
 How To Play
 ----
- - If you don't have [Python](https://www.python.org/downloads/) or [Pygame](http://www.pygame.org/download.shtml) installed, you can simply double click the .exe file to play the game.
-   **Note:** *The .exe file needs to stay in the same directory as the sounds, images, and font folders.*
-   
- - If you have the correct version of Python and Pygame installed, you can run the program in the command prompt / terminal.
- ``` c
- 	cd SpaceInvaders
- 	python spaceinvaders.py
- ```
- **Note:** If you're using Python 3, replace the command "python" with "python3"
+Control the ship by tilting the micro:bit left and right to move and press either
+button to fire. Use `microbit_com.py` on the micro:bit and then start the game
+with:
 
+``` bash
+cd SpaceInvaders
+python3 spaceinvaders.py
+```
+
+Note that this uses the device `/dev/ttyACM0`, as the micro:bit appears in Linux.
+The constant `MB_DEVICE` needs to be changed in `spaceinvaders.py` to work with a
+different operating system.
 
 Contact
 ----
-Thanks for checking out my game and I hope you enjoy it! Feel free to contact me.
+See the [original repository](https://github.com/leerob/Space_Invaders) for
+contact details.
 
-- v1.0 released 10/31/2014
-- MIT License
-- Created by Lee Robinson at Iowa State Univeristy.
-- leerob@iastate.edu
+Released under the MIT License. See the LICENSE file for details.
