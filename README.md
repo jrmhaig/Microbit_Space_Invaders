@@ -23,8 +23,8 @@ gradually destroyed by projectiles from the aliens and player.
 
 The original version was created by Lee Robinson: https://github.com/leerob/Space_Invaders
 
-<img src="http://www.leejamesrobinson.com/uploads/2/4/9/9/24992148/6520712.png" width="360" height="300" />
-<img src="http://www.leejamesrobinson.com/uploads/2/4/9/9/24992148/6435166.png?1414553641" width="360" height="300"/>
+<img src="http://i.imgur.com/u2mss8o.png" width="360" height="300" />
+<img src="http://i.imgur.com/mR81p5O.png" width="360" height="300"/>
 
 How To Play
 ----
